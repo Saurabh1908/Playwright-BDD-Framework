@@ -1,4 +1,6 @@
+import { expect } from '@playwright/test';
 import type { Page } from 'playwright';
+import { settings } from '../config/config';
 
 export class CheckoutOverviewPage {
   private readonly pageTitle;
@@ -11,10 +13,7 @@ export class CheckoutOverviewPage {
 
   async verifyContainsProduct(productName: string): Promise<void> {
     await this.page.waitForURL('**/checkout-step-two.html');
-    const title = await this.pageTitle.textContent();
-    if (title?.trim() !== 'Checkout: Overview') {
-      throw new Error(`Expected the checkout overview page, received: ${title?.trim() ?? 'no heading'}`);
-    }
+    await expect(this.pageTitle).toHaveText('Checkout: Overview', { timeout: settings.timeout });
     await this.page.getByText(productName, { exact: false }).first().waitFor({ state: 'visible' });
   }
 

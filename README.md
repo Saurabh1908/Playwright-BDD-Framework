@@ -1,6 +1,6 @@
 # Playwright BDD Framework
 
-A TypeScript browser automation framework for SauceDemo. Cucumber executes the Gherkin scenarios; Playwright supplies browser automation through its standard `Page` API. The Playwright Test runner is not used.
+A TypeScript browser automation framework for SauceDemo. `playwright-bdd` generates Playwright Test cases from the Gherkin features, and the Playwright Test runner executes them.
 
 ## A. Project Architecture
 
@@ -25,7 +25,7 @@ playwright-bdd-framework/
 └── README.md
 ```
 
-Gherkin is the Given/When/Then syntax in the feature file. Step definitions connect each sentence to TypeScript. The Page Object Model puts selectors and UI actions in focused page classes, so steps describe intent rather than browser mechanics. Cucumber's World holds scenario-specific state. `Browser` launches a browser process, `BrowserContext` isolates each scenario's cookies and storage, and `Page` represents its tab. The `@e2e` scenario logs in, adds Sauce Labs Backpack to the cart, enters checkout information, reviews the order, completes it, and verifies the thank-you message.
+Gherkin is the Given/When/Then syntax in the feature file. `playwright-bdd` connects each sentence to TypeScript step definitions and generates Playwright tests. The Page Object Model puts selectors and UI actions in focused page classes, so steps describe intent rather than browser mechanics. The `@e2e` scenario logs in, adds Sauce Labs Backpack to the cart, enters checkout information, reviews the order, completes it, and verifies the thank-you message.
 
 ## B. Installation
 
@@ -51,47 +51,37 @@ For the public SauceDemo demo app, the supplied test account is `standard_user` 
 
 The browser can be selected with `BROWSER=chromium`, `firefox`, or `webkit`; `TIMEOUT` is in milliseconds. Set `HEADED=true` (or use the headed npm script) for a visible browser.
 
-## E. Execute All BDD Tests
+## E. Execute BDD Tests
 
 ```sh
-npm run test:bdd
+npm test
 ```
 
-To run using UAT settings:
+`npm test` runs against QA by default. The environment-specific scripts generate the BDD tests and run them using the matching configuration:
 
 ```sh
-TEST_ENV=uat npm run test:bdd
+npm run test:qa
+npm run test:uat
 ```
 
-In PowerShell, use `$env:TEST_ENV='uat'; npm run test:bdd`.
+These scripts work in both PowerShell and CI. They select `TEST_ENV=qa` or `TEST_ENV=uat` and use the corresponding `config/.env.*` file.
 
-## F. Execute a Specific Feature
+## F. Filter Tests
 
 ```sh
-npm run test:bdd -- features/login.feature
+npm run test:qa -- --grep @smoke
 ```
 
-The same command accepts any feature path or Cucumber CLI option after `--`.
+Playwright Test options can be passed after `--`; for example, use `--grep @e2e` to run the end-to-end scenario.
 
-## G. Execute by Tag
+## G. Generate the Allure Report
 
-Run a tagged scenario with the runner:
+The Playwright run writes results to `allure-results`. Generate and open the report with:
 
 ```sh
-npm run test:bdd -- --tags '@smoke'
+npm run allure:generate
+npm run allure:open
 ```
-
-Or use the shortcuts `npm run test:bdd:smoke` and `npm run test:bdd:e2e`. The E2E shortcut runs the complete login-to-order-confirmation journey. To select a different tag expression with the custom runner, set `TAGS` in the environment.
-
-## H. Run in Headed Mode
-
-```sh
-npm run test:bdd:headed
-```
-
-## I. Generate the HTML Report
-
-Both `npm run test:bdd` and `npm run test:bdd:html` generate `reports/cucumber-report.html` and `reports/cucumber-report.json`. The HTML report includes feature/scenario names, step statuses and durations, failure details, and embedded failure screenshots when the reporter supports the attachment.
 
 ## J. Failure Screenshots
 

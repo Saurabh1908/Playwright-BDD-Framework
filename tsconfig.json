@@ -16,3 +16,4 @@
   "include": ["config/**/*.ts", "hooks/**/*.ts", "pages/**/*.ts", "step-definitions/**/*.ts", "support/**/*.ts", "test-runner/**/*.ts", "playwright.config.ts"],
   "exclude": ["node_modules", "dist", "reports", "screenshots"]
 }
+

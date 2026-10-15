@@ -1,9 +1,37 @@
+import { defineConfig } from '@playwright/test';
+import { defineBddConfig } from 'playwright-bdd';
 import { settings } from './config/config';
 
-// Shared Playwright browser settings; Cucumber, not Playwright Test, runs the scenarios.
-export default {
-  browserName: settings.browserName,
-  headless: settings.headless,
+const testDir = defineBddConfig({
+  features: 'features/*.feature',
+  steps: [
+    'step-definitions/*.ts',
+    'support/playwrightFixtures.ts',
+  ],
+});
+
+export default defineConfig({
+  testDir,
+  fullyParallel: true,
+  workers: process.env.CI ? 2 : undefined,
   timeout: settings.timeout,
-  baseURL: settings.baseUrl,
-};
+  reporter: [
+    ['list'],
+    ['allure-playwright', { outputFolder: 'allure-results' }],
+  ],
+  use: {
+    baseURL: settings.baseUrl,
+    headless: settings.headless,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: settings.browserName,
+      use: {
+        browserName: settings.browserName,
+      },
+    },
+  ],
+});
